@@ -1,15 +1,25 @@
 Rails.application.routes.draw do
-  get "posts/index"
-  get "posts/show"
-  get "posts/new"
-  get "posts/create"
-  get "posts/edit"
-  get "posts/update"
-  get "posts/destroy"
+  # get "users/index"
+  # get "users/show"
+  # get "users/edit"
+  # get "users/update"
+  # get "posts/index"
+  # get "posts/show"
+  # get "posts/new"
+  # get "posts/create"
+  # get "posts/edit"
+  # get "posts/update"
+  # get "posts/destroy"
   devise_for :users
+  root 'pages#index'
+
   resources :posts
   resources :categories, only: [:index, :show]
-  root 'pages#index'
+
+  resources :users, only: [:show, :edit, :update], path: 'people', constraints: { id: /\d+/ }
+  get 'people', to: 'users#index', as: 'users'
+  resources :contacts, only: [:index, :create, :update, :destroy]
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

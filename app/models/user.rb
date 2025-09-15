@@ -20,41 +20,50 @@ class User < ApplicationRecord
   has_many :contacts_as_requester, through: :accepted_sent_requests, source: :requested
   has_many :contacts_as_requested, through: :accepted_received_requests, source: :requester
   
-  # Validations - make them conditional so existing users aren't forced to update
+  # Safe validations - only validate if present
   validates :first_name, length: { minimum: 2, maximum: 30 }, allow_blank: true
   validates :last_name, length: { minimum: 2, maximum: 30 }, allow_blank: true
-  validates :bio, length: { maximum: 500 }
-  validates :location, length: { maximum: 100 }
+  validates :bio, length: { maximum: 500 }, allow_blank: true
+  validates :location, length: { maximum: 100 }, allow_blank: true
   
+  # Safe attribute access methods
   def full_name
-    "#{first_name} #{last_name}".strip
+    fname = (first_name || "").strip
+    lname = (last_name || "").strip
+    "#{fname} #{lname}".strip
   end
   
   def display_name
-    if full_name.present?
-      full_name
+    full_name_str = full_name
+    if full_name_str.present?
+      full_name_str
     else
-      email.split('@').first.humanize
+      email.present? ? email.split('@').first.humanize : "User"
     end
   end
   
-  # Get all contacts (both directions)
+  def safe_bio
+    bio || ""
+  end
+  
+  def safe_location
+    location || ""
+  end
+  
+  # Rest of the methods
   def contacts
     User.where(id: contacts_as_requester.pluck(:id) + contacts_as_requested.pluck(:id))
   end
   
-  # Check if users are contacts
   def contact_with?(user)
     return false if user == self
     contacts.include?(user)
   end
   
-  # Get pending contact requests sent to this user
   def pending_contact_requests
     received_contact_requests.where(status: 'pending')
   end
   
-  # Check contact request status with another user
   def contact_request_status_with(user)
     return nil if user == self
     

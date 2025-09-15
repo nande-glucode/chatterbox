@@ -42,7 +42,11 @@
               <li><%= link_to 'New Post', new_post_path, class: 'dropdown-item' %></li>
               <li><%= link_to 'My Contacts', contacts_path, class: 'dropdown-item' %></li>
               <li><hr class="dropdown-divider"></li>
-              <li><%= link_to 'Sign Out', destroy_user_session_path, method: :delete, class: 'dropdown-item' %></li>
+              <li><%= form_with url: destroy_user_session_path, method: :delete, local: true, class: 'd-inline' do %>
+                <%= submit_tag 'Sign Out', class: 'dropdown-item btn btn-link text-start', 
+                     style: 'border: none; background: none; width: 100%; padding: 0.25rem 1rem;' %>
+                 <% end %>
+              </li>
             </ul>
           </li>
         <% else %>
