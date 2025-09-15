@@ -1,0 +1,16 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+      <div class="page-header">
+        <h2>Edit Post</h2>
+      </div>
+
+      <%= render 'form', post: @post %>
+      
+      <div class="form-actions">
+        <%= link_to 'Show', @post, class: 'btn btn-default' %> |
+        <%= link_to 'Back', posts_path, class: 'btn btn-default' %>
+      </div>
+    </div>
+  </div>
+</div>

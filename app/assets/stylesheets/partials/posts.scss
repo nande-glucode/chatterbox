@@ -1,0 +1,47 @@
+.post-preview {
+  margin-bottom: 20px;
+  
+  h3 {
+    margin-top: 0;
+    
+    a {
+      color: #333;
+      text-decoration: none;
+      
+      &:hover {
+        color: $navbarColor;
+        text-decoration: none;
+      }
+    }
+  }
+  
+  .post-actions {
+    margin-top: 15px;
+    
+    .btn {
+      margin-right: 5px;
+    }
+  }
+}
+
+.post-header {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+  
+  h1 {
+    margin-bottom: 10px;
+  }
+}
+
+.post-content {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.form-actions {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}

@@ -12,6 +12,12 @@
  *= require_tree .
  *= require_self
  */
+
+@import "base/variables";
+@import "bootstrap-sprockets";
+@import "bootstrap";
+@import "partials/layout/navigation";
+@import "partials/posts";
  
 body {
   padding-top: 70px;

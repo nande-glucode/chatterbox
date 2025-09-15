@@ -1,0 +1,46 @@
+<div class="row">
+  <div class="col-lg-8 mx-auto">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1>All Posts</h1>
+      <% if user_signed_in? %>
+        <%= link_to 'New Post', new_post_path, class: 'btn btn-primary' %>
+      <% end %>
+    </div>
+
+    <% if @posts.any? %>
+      <% @posts.each do |post| %>
+        <div class="card mb-4">
+          <div class="card-body">
+            <h3 class="card-title">
+              <%= link_to post.title, post_path(post), class: 'text-decoration-none' %>
+            </h3>
+            <p class="text-muted">
+              By <%= post.user.email %> • 
+              <%= time_ago_in_words(post.created_at) %> ago
+            </p>
+            <p class="card-text"><%= truncate(post.content, length: 200) %></p>
+            
+            <div class="d-flex gap-2">
+              <%= link_to 'Read More', post_path(post), class: 'btn btn-sm btn-outline-primary' %>
+              <% if user_signed_in? && current_user == post.user %>
+                <%= link_to 'Edit', edit_post_path(post), class: 'btn btn-sm btn-warning' %>
+                <%= link_to 'Delete', post_path(post), method: :delete, 
+                            confirm: 'Are you sure?', class: 'btn btn-sm btn-danger' %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="text-center p-5">
+        <h3>No posts yet!</h3>
+        <p class="text-muted">Be the first to share something with the community.</p>
+        <% if user_signed_in? %>
+          <%= link_to 'Create First Post', new_post_path, class: 'btn btn-primary' %>
+        <% else %>
+          <%= link_to 'Sign Up to Post', new_user_registration_path, class: 'btn btn-primary' %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
