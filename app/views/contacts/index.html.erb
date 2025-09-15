@@ -1,0 +1,115 @@
+<div class="row">
+  <div class="col-lg-10 mx-auto">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1>My Contacts</h1>
+      <%= link_to 'Discover People', users_path, class: 'btn btn-primary' %>
+    </div>
+
+    <!-- Pending Requests (received) -->
+    <% if @pending_requests.any? %>
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Pending Contact Requests (<%= @pending_requests.count %>)</h5>
+        </div>
+        <div class="card-body">
+          <% @pending_requests.each do |request| %>
+            <div class="d-flex justify-content-between align-items-center py-2 <%= 'border-bottom' unless request == @pending_requests.last %>">
+              <div>
+                <strong><%= link_to request.requester.display_name, user_path(request.requester), class: 'text-decoration-none' %></strong>
+                <p class="text-muted small mb-0">
+                  <%= request.requester.email %> • 
+                  <%= time_ago_in_words(request.created_at) %> ago
+                </p>
+                <% if request.requester.bio.present? %>
+                  <p class="text-muted small mb-0"><%= truncate(request.requester.bio, length: 80) %></p>
+                <% end %>
+              </div>
+              <div class="d-flex gap-2">
+                <%= form_with model: request, url: contact_path(request), method: :patch, local: true, class: 'd-inline' do |form| %>
+                  <%= form.hidden_field :action_type, value: 'accept' %>
+                  <%= form.submit 'Accept', class: 'btn btn-sm btn-success' %>
+                <% end %>
+                <%= form_with model: request, url: contact_path(request), method: :patch, local: true, class: 'd-inline' do |form| %>
+                  <%= form.hidden_field :action_type, value: 'decline' %>
+                  <%= form.submit 'Decline', class: 'btn btn-sm btn-outline-danger' %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Sent Requests -->
+    <% if @sent_requests.any? %>
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Sent Requests (<%= @sent_requests.count %>)</h5>
+        </div>
+        <div class="card-body">
+          <% @sent_requests.each do |request| %>
+            <div class="d-flex justify-content-between align-items-center py-2 <%= 'border-bottom' unless request == @sent_requests.last %>">
+              <div>
+                <strong><%= link_to request.requested.display_name, user_path(request.requested), class: 'text-decoration-none' %></strong>
+                <p class="text-muted small mb-0">
+                  <%= request.requested.email %> • 
+                  Sent <%= time_ago_in_words(request.created_at) %> ago
+                </p>
+              </div>
+              <span class="badge bg-warning">Pending</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Current Contacts -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">My Contacts (<%= @contacts.count %>)</h5>
+      </div>
+      <div class="card-body">
+        <% if @contacts.any? %>
+          <div class="row">
+            <% @contacts.each do |contact| %>
+              <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h6 class="card-title">
+                      <%= link_to contact.display_name, user_path(contact), class: 'text-decoration-none' %>
+                    </h6>
+                    <p class="text-muted small"><%= contact.email %></p>
+                    
+                    <% if contact.location.present? %>
+                      <p class="text-muted small">
+                        <i class="fas fa-map-marker-alt"></i> <%= contact.location %>
+                      </p>
+                    <% end %>
+                    
+                    <p class="text-muted small">
+                      <%= pluralize(contact.posts.count, 'post') %>
+                    </p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                      <%= link_to 'View Profile', user_path(contact), class: 'btn btn-sm btn-outline-primary' %>
+                      
+                      <% contact_relation = current_user.sent_contact_requests.accepted.find_by(requested: contact) || current_user.received_contact_requests.accepted.find_by(requester: contact) %>
+                      <%= link_to 'Remove', contact_path(contact_relation), method: :delete, 
+                                  confirm: 'Are you sure you want to remove this contact?',
+                                  class: 'btn btn-sm btn-outline-danger' %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center p-4">
+            <p class="text-muted mb-3">You don't have any contacts yet.</p>
+            <%= link_to 'Discover People', users_path, class: 'btn btn-primary' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

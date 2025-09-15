@@ -1,33 +1,38 @@
-<%= form_with(model: post, local: true, html: { class: 'form-horizontal' }) do |form| %>
+<%= form_with(model: post, local: true, class: 'row g-3') do |form| %>
   <% if post.errors.any? %>
-    <div class="alert alert-danger">
-      <h4><%= pluralize(post.errors.count, "error") %> prohibited this post from being saved:</h4>
-      <ul>
-        <% post.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
+    <div class="col-12">
+      <div class="alert alert-danger">
+        <h4><%= pluralize(post.errors.count, "error") %> prohibited this post from being saved:</h4>
+        <ul class="mb-0">
+          <% post.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
     </div>
   <% end %>
 
-  <div class="form-group">
-    <%= form.label :title, class: 'col-sm-2 control-label' %>
-    <div class="col-sm-10">
-      <%= form.text_field :title, class: 'form-control', placeholder: 'Enter an engaging title...' %>
-    </div>
+  <div class="col-12">
+    <%= form.label :title, class: 'form-label' %>
+    <%= form.text_field :title, class: 'form-control', placeholder: 'Enter an engaging title...' %>
   </div>
 
-  <div class="form-group">
-    <%= form.label :content, class: 'col-sm-2 control-label' %>
-    <div class="col-sm-10">
-      <%= form.text_area :content, rows: 10, class: 'form-control', 
-                         placeholder: 'Share your thoughts with the community...' %>
-    </div>
+  <div class="col-12">
+    <%= form.label :category_id, 'Category', class: 'form-label' %>
+    <%= form.select :category_id, 
+        options_from_collection_for_select(@categories, :id, :name, post.category_id),
+        { prompt: 'Select a category (optional)' },
+        { class: 'form-select' } %>
   </div>
 
-  <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
-      <%= form.submit class: 'btn btn-primary' %>
-    </div>
+  <div class="col-12">
+    <%= form.label :content, class: 'form-label' %>
+    <%= form.text_area :content, rows: 10, class: 'form-control', 
+                       placeholder: 'Share your thoughts with the community...' %>
+  </div>
+
+  <div class="col-12">
+    <%= form.submit class: 'btn btn-primary' %>
+    <%= link_to 'Cancel', posts_path, class: 'btn btn-outline-secondary ms-2' %>
   </div>
 <% end %>

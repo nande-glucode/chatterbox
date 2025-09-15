@@ -4,7 +4,11 @@ class PostsController < ApplicationController
   before_action :check_owner, only: [:edit, :update, :destroy]
 
   def index
-    @posts = Post.all.includes(:user).order(created_at: :desc)
+    @posts = Post.all.includes(:user, :category).recent
+    @posts = @posts.by_category(params[:category_id]) if params[:category_id].present?
+    @posts = @posts.search(params[:search]) if params[:search].present?
+
+    @categories = Category.alphabetical
   end
 
   def show
@@ -12,6 +16,7 @@ class PostsController < ApplicationController
 
   def new
     @post = current_user.posts.build
+    @categories = Category.alphabetical
   end
 
   def create
@@ -20,17 +25,20 @@ class PostsController < ApplicationController
     if @post.save
       redirect_to @post, notice: 'Post was successfully created.'
     else
+      @categories = Category.alphabetical
       render :new
     end
   end
 
   def edit
+    @categories = Category.alphabetical
   end
 
   def update
     if @post.update(post_params)
       redirect_to @post, notice: 'Post was successfully updated.'
     else
+      @categories = Category.alphabetical
       render :edit
     end
   end
@@ -47,7 +55,7 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.require(:post).permit(:title, :content)
+    params.require(:post).permit(:title, :content, :category_id)
   end
   
   def check_owner

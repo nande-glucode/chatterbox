@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   get "posts/destroy"
   devise_for :users
   resources :posts
+  resources :categories, only: [:index, :show]
   root 'pages#index'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

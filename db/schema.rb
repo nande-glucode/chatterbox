@@ -10,9 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_15_132446) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_15_150658) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "categories", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "contacts", force: :cascade do |t|
+    t.bigint "requester_id", null: false
+    t.bigint "requested_id", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["requested_id"], name: "index_contacts_on_requested_id"
+    t.index ["requester_id", "requested_id"], name: "index_contacts_on_requester_id_and_requested_id", unique: true
+    t.index ["requester_id"], name: "index_contacts_on_requester_id"
+  end
 
   create_table "posts", force: :cascade do |t|
     t.string "title"
@@ -20,6 +38,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_15_132446) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "category_id"
+    t.index ["category_id"], name: "index_posts_on_category_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
@@ -32,9 +52,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_15_132446) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.text "bio"
+    t.string "location"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "contacts", "users", column: "requested_id"
+  add_foreign_key "contacts", "users", column: "requester_id"
+  add_foreign_key "posts", "categories"
   add_foreign_key "posts", "users"
 end

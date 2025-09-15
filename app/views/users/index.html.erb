@@ -1,0 +1,87 @@
+<div class="row">
+  <div class="col-lg-10 mx-auto">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1>Discover People</h1>
+      <%= link_to 'My Contacts', contacts_path, class: 'btn btn-primary' %>
+    </div>
+
+    <!-- Search Form -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <%= form_with url: users_path, method: :get, local: true, class: "d-flex" do |form| %>
+          <%= form.text_field :search, 
+              value: params[:search], 
+              placeholder: "Search by name or email...", 
+              class: "form-control me-2" %>
+          <%= form.submit "Search", class: "btn btn-outline-primary" %>
+        <% end %>
+      </div>
+      <% if params[:search].present? %>
+        <div class="col-md-6">
+          <div class="alert alert-info mb-0">
+            Search results for "<strong><%= params[:search] %></strong>"
+            <%= link_to 'Clear', users_path, class: 'btn btn-sm btn-outline-secondary ms-2' %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @users.any? %>
+      <div class="row">
+        <% @users.each do |user| %>
+          <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <%= link_to user.display_name, user_path(user), class: 'text-decoration-none' %>
+                </h5>
+                <p class="text-muted small"><%= user.email %></p>
+                
+                <% if user.location.present? %>
+                  <p class="text-muted small">
+                    <i class="fas fa-map-marker-alt"></i> <%= user.location %>
+                  </p>
+                <% end %>
+                
+                <% if user.bio.present? %>
+                  <p class="card-text"><%= truncate(user.bio, length: 100) %></p>
+                <% end %>
+                
+                <p class="text-muted small">
+                  <%= pluralize(user.posts.count, 'post') %>
+                </p>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                  <%= link_to 'View Profile', user_path(user), class: 'btn btn-sm btn-outline-primary' %>
+                  
+                  <% contact_status = current_user.contact_request_status_with(user) %>
+                  <% if current_user.contact_with?(user) %>
+                    <span class="badge bg-success">Contact</span>
+                  <% elsif contact_status == 'pending' %>
+                    <span class="badge bg-warning">Request Sent</span>
+                  <% elsif contact_status.nil? %>
+                    <%= form_with model: Contact.new, url: contacts_path, local: true, class: 'd-inline' do |form| %>
+                      <%= form.hidden_field :requested_id, value: user.id %>
+                      <%= form.submit 'Add Contact', class: 'btn btn-sm btn-success' %>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center p-5">
+        <h3>No users found!</h3>
+        <p class="text-muted">
+          <% if params[:search].present? %>
+            Try adjusting your search criteria.
+          <% else %>
+            Be patient, more people will join soon.
+          <% end %>
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>

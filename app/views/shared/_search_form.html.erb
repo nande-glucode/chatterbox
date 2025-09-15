@@ -1,0 +1,21 @@
+<div class="row mb-4">
+  <div class="col-md-8">
+    <%= form_with url: posts_path, method: :get, local: true, class: "d-flex" do |form| %>
+      <%= form.text_field :search, 
+          value: params[:search], 
+          placeholder: "Search posts by title or content...", 
+          class: "form-control me-2" %>
+      <%= form.hidden_field :category_id, value: params[:category_id] %>
+      <%= form.submit "Search", class: "btn btn-outline-primary" %>
+    <% end %>
+  </div>
+  <div class="col-md-4">
+    <%= form_with url: posts_path, method: :get, local: true do |form| %>
+      <%= form.select :category_id, 
+          options_from_collection_for_select(Category.alphabetical, :id, :name, params[:category_id]),
+          { prompt: "All Categories" },
+          { class: "form-select", onchange: "this.form.submit();" } %>
+      <%= form.hidden_field :search, value: params[:search] %>
+    <% end %>
+  </div>
+</div>
