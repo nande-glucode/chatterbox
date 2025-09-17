@@ -4,7 +4,7 @@ class User < ApplicationRecord
   
   has_many :posts, dependent: :destroy
   
-  # Contact relationships
+  # Contact relationships (existing code)
   has_many :sent_contact_requests, class_name: 'Contact', 
            foreign_key: 'requester_id', dependent: :destroy
   has_many :received_contact_requests, class_name: 'Contact', 
@@ -20,13 +20,17 @@ class User < ApplicationRecord
   has_many :contacts_as_requester, through: :accepted_sent_requests, source: :requested
   has_many :contacts_as_requested, through: :accepted_received_requests, source: :requester
   
-  # Safe validations - only validate if present
+  # Messaging relationships
+  has_many :participants, dependent: :destroy
+  has_many :conversations, through: :participants
+  has_many :messages, dependent: :destroy
+  
+  # Existing validations and methods...
   validates :first_name, length: { minimum: 2, maximum: 30 }, allow_blank: true
   validates :last_name, length: { minimum: 2, maximum: 30 }, allow_blank: true
   validates :bio, length: { maximum: 500 }, allow_blank: true
   validates :location, length: { maximum: 100 }, allow_blank: true
   
-  # Safe attribute access methods
   def full_name
     fname = (first_name || "").strip
     lname = (last_name || "").strip
@@ -50,7 +54,7 @@ class User < ApplicationRecord
     location || ""
   end
   
-  # Rest of the methods
+  # Contact system methods (existing)
   def contacts
     User.where(id: contacts_as_requester.pluck(:id) + contacts_as_requested.pluck(:id))
   end
@@ -77,5 +81,18 @@ class User < ApplicationRecord
   
   def profile_complete?
     first_name.present? && last_name.present?
+  end
+  
+  # New messaging methods
+  def conversation_with(other_user)
+    Conversation.between_users(self, other_user)
+  end
+  
+  def create_conversation_with(other_user)
+    conversation = Conversation.create!
+    [self, other_user].each do |user|
+      conversation.participants.create!(user: user)
+    end
+    conversation
   end
 end

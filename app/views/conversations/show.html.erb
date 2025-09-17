@@ -1,0 +1,82 @@
+<div class="row h-100">
+  <div class="col-lg-8 mx-auto">
+    <!-- Conversation Header -->
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-0"><%= @conversation.display_name(current_user) %></h5>
+          <small class="text-muted">
+            <%= @conversation.other_participants(current_user).map(&:display_name).join(', ') %>
+          </small>
+        </div>
+        <%= link_to '← Back to Messages', conversations_path, class: 'btn btn-outline-secondary btn-sm' %>
+      </div>
+      
+      <!-- Messages Area -->
+      <div class="card-body" style="height: 400px; overflow-y: auto;" id="messages-container">
+        <div id="messages">
+          <%= render partial: 'messages/message', collection: @messages, locals: { current_user: current_user } %>
+        </div>
+      </div>
+      
+      <!-- Message Form -->
+      <div class="card-footer">
+        <%= form_with model: [@conversation, @message], local: true, id: 'message-form' do |form| %>
+          <div class="input-group">
+            <%= form.text_area :content, 
+                class: 'form-control', 
+                rows: 2, 
+                placeholder: 'Type your message...', 
+                required: true %>
+            <button class="btn btn-primary" type="submit">Send</button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Inline JavaScript for messaging -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Page loaded, setting up messaging...');
+  
+  const messagesContainer = document.getElementById('messages-container');
+  const messagesDiv = document.getElementById('messages');
+  
+  // Scroll to bottom function
+  function scrollToBottom() {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+  
+  // Initial scroll to bottom
+  scrollToBottom();
+  
+  // Simple polling fallback for now (we'll add ActionCable later)
+  let lastMessageCount = document.querySelectorAll('.message').length;
+  
+  function checkForNewMessages() {
+    fetch('<%= conversation_path(@conversation) %>', {
+      headers: { 'Accept': 'text/html' }
+    })
+    .then(response => response.text())
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const newMessages = doc.querySelectorAll('.message');
+      
+      if (newMessages.length > lastMessageCount) {
+        // New messages found, reload the messages
+        const newMessagesHtml = doc.getElementById('messages').innerHTML;
+        messagesDiv.innerHTML = newMessagesHtml;
+        lastMessageCount = newMessages.length;
+        scrollToBottom();
+      }
+    })
+    .catch(error => console.log('Error checking for messages:', error));
+  }
+  
+  // Check for new messages every 2 seconds
+  setInterval(checkForNewMessages, 2000);
+});
+</script>

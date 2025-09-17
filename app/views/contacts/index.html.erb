@@ -2,10 +2,13 @@
   <div class="col-lg-10 mx-auto">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1>My Contacts</h1>
-      <%= link_to 'Discover People', users_path, class: 'btn btn-primary' %>
+      <div>
+        <%= link_to 'Messages', conversations_path, class: 'btn btn-primary me-2' %>
+        <%= link_to 'Discover People', users_path, class: 'btn btn-outline-primary' %>
+      </div>
     </div>
 
-    <!-- Pending Requests (received) -->
+    <!-- Pending Requests section stays the same... -->
     <% if @pending_requests.any? %>
       <div class="card mb-4">
         <div class="card-header">
@@ -20,27 +23,28 @@
                   <%= request.requester.email %> • 
                   <%= time_ago_in_words(request.created_at) %> ago
                 </p>
-                <% if request.requester.bio.present? %>
-                  <p class="text-muted small mb-0"><%= truncate(request.requester.bio, length: 80) %></p>
+                <% if request.requester.safe_bio.present? %>
+                  <p class="text-muted small mb-0"><%= truncate(request.requester.safe_bio, length: 80) %></p>
                 <% end %>
               </div>
+              <!-- In the pending requests section, make sure the forms look like this: -->
               <div class="d-flex gap-2">
-                <%= form_with model: request, url: contact_path(request), method: :patch, local: true, class: 'd-inline' do |form| %>
-                  <%= form.hidden_field :action_type, value: 'accept' %>
-                  <%= form.submit 'Accept', class: 'btn btn-sm btn-success' %>
-                <% end %>
-                <%= form_with model: request, url: contact_path(request), method: :patch, local: true, class: 'd-inline' do |form| %>
-                  <%= form.hidden_field :action_type, value: 'decline' %>
-                  <%= form.submit 'Decline', class: 'btn btn-sm btn-outline-danger' %>
-                <% end %>
-              </div>
+               <%= form_with model: request, url: contact_path(request), method: :patch, local: true, class: 'd-inline' do |form| %>
+               <%= form.hidden_field :action_type, value: 'accept' %>
+               <%= form.submit 'Accept', class: 'btn btn-sm btn-success' %>
+               <% end %>
+               <%= form_with model: request, url: contact_path(request), method: :patch, local: true, class: 'd-inline' do |form| %>
+               <%= form.hidden_field :action_type, value: 'decline' %>
+               <%= form.submit 'Decline', class: 'btn btn-sm btn-outline-danger' %>
+                  <% end %>
+                </div>
             </div>
           <% end %>
         </div>
       </div>
     <% end %>
 
-    <!-- Sent Requests -->
+    <!-- Sent Requests section stays the same... -->
     <% if @sent_requests.any? %>
       <div class="card mb-4">
         <div class="card-header">
@@ -63,7 +67,7 @@
       </div>
     <% end %>
 
-    <!-- Current Contacts -->
+    <!-- Updated Current Contacts section with message buttons: -->
     <div class="card">
       <div class="card-header">
         <h5 class="mb-0">My Contacts (<%= @contacts.count %>)</h5>
@@ -80,9 +84,9 @@
                     </h6>
                     <p class="text-muted small"><%= contact.email %></p>
                     
-                    <% if contact.location.present? %>
+                    <% if contact.safe_location.present? %>
                       <p class="text-muted small">
-                        <i class="fas fa-map-marker-alt"></i> <%= contact.location %>
+                        <i class="fas fa-map-marker-alt"></i> <%= contact.safe_location %>
                       </p>
                     <% end %>
                     
@@ -90,7 +94,9 @@
                       <%= pluralize(contact.posts.count, 'post') %>
                     </p>
                     
-                    <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="d-flex flex-column gap-2 mt-3">
+                      <%= link_to 'Message', start_conversation_path(user_id: contact.id), 
+                                  class: 'btn btn-sm btn-primary' %>
                       <%= link_to 'View Profile', user_path(contact), class: 'btn btn-sm btn-outline-primary' %>
                       
                       <% contact_relation = current_user.sent_contact_requests.accepted.find_by(requested: contact) || current_user.received_contact_requests.accepted.find_by(requester: contact) %>

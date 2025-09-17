@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  get "messages/create"
+  get "messages/destroy"
+  get "conversations/index"
+  get "conversations/show"
+  get "conversations/create"
   # get "users/index"
   # get "users/show"
   # get "users/edit"
@@ -19,6 +24,14 @@ Rails.application.routes.draw do
   resources :users, only: [:show, :edit, :update], path: 'people', constraints: { id: /\d+/ }
   get 'people', to: 'users#index', as: 'users'
   resources :contacts, only: [:index, :create, :update, :destroy]
+
+  get 'conversations/start', to: 'conversations#start', as: 'start_conversation'
+
+  resources :conversations, only: [:index, :show, :create] do
+    resources :messages, only: [:create, :destroy]
+  end
+
+  #get 'conversations/start', to: 'conversations#start', as: 'start_conversation'
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

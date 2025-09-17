@@ -1,0 +1,18 @@
+<div class="message mb-3 <%= 'text-end' if message.user == current_user %>">
+  <div class="d-inline-block <%= message.user == current_user ? 'bg-primary text-white' : 'bg-light' %> 
+              rounded p-2 max-width-75">
+    <% unless message.user == current_user %>
+      <small class="text-muted d-block"><strong><%= message.user.display_name %></strong></small>
+    <% end %>
+    <div><%= simple_format(message.content) %></div>
+    <small class="<%= message.user == current_user ? 'text-white-50' : 'text-muted' %>">
+      <%= message.created_at.strftime("%I:%M %p") %>
+    </small>
+  </div>
+</div>
+
+<style>
+  .max-width-75 {
+    max-width: 75%;
+  }
+</style>

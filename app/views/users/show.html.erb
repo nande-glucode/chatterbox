@@ -25,16 +25,22 @@
           
           <div class="col-md-4 text-md-end">
             <% if @user == current_user %>
-              <%= link_to 'Edit Profile', edit_user_path(@user), class: 'btn btn-warning mb-2' %>
+              <%= link_to 'Edit Profile', edit_user_path(@user), class: 'btn btn-warning mb-2 d-block' %>
             <% else %>
+              <!-- Contact Request Logic -->
+              <% contact_status = current_user.contact_request_status_with(@user) %>
               <% if current_user.contact_with?(@user) %>
-                <p class="badge bg-success fs-6 mb-2">You are contacts</p>
-              <% elsif @contact_request_status == 'pending' %>
+                <div class="mb-2">
+                  <span class="badge bg-success fs-6 d-block mb-2">You are contacts</span>
+                  <%= link_to 'Send Message', start_conversation_path(user_id: @user.id), 
+                              class: 'btn btn-primary d-block' %>
+                </div>
+              <% elsif contact_status == 'pending' %>
                 <p class="badge bg-warning fs-6 mb-2">Request pending</p>
-              <% elsif @contact_request_status.nil? %>
+              <% elsif contact_status.nil? %>
                 <%= form_with model: Contact.new, url: contacts_path, local: true do |form| %>
                   <%= form.hidden_field :requested_id, value: @user.id %>
-                  <%= form.submit 'Send Contact Request', class: 'btn btn-success mb-2' %>
+                  <%= form.submit 'Send Contact Request', class: 'btn btn-success mb-2 d-block' %>
                 <% end %>
               <% end %>
             <% end %>
